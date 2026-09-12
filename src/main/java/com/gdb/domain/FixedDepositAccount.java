@@ -1,5 +1,7 @@
 package com.gdb.domain;
 
+import com.gdb.exceptions.*;
+
 /**
  * FixedDepositAccount class extends Account with fixed deposit and compound interest calculation.
  */
@@ -39,6 +41,25 @@ public class FixedDepositAccount extends Account {
         double years = tenureMonths / 12.0;
         double maturityAmount = getBalance() * Math.pow(1 + rate, years);
         return maturityAmount;
+    }
+    
+    /**
+     * Override withdraw method to prevent premature withdrawals.
+     * Fixed Deposit accounts do not allow withdrawals before maturity.
+     * 
+     * @param amount Amount to withdraw
+     * @param enteredPin PIN for authentication
+     * @return This method never returns successfully for FixedDepositAccount
+     * @throws AccountException indicating premature withdrawal not permitted
+     */
+    @Override
+    public boolean withdraw(double amount, String enteredPin) throws InvalidPinException,
+                                                                     InactiveAccountException,
+                                                                     InvalidAmountException,
+                                                                     InsufficientBalanceException,
+                                                                     MinimumBalanceViolationException,
+                                                                     AccountException {
+        throw new AccountException("Premature withdrawal not permitted on Fixed Deposit account. Please wait until maturity.");
     }
     
     /**

@@ -58,7 +58,9 @@ public class Account {
     public boolean withdraw(double amount, String enteredPin) throws InvalidPinException, 
                                                                    InactiveAccountException,
                                                                    InvalidAmountException,
-                                                                   InsufficientBalanceException {
+                                                                   InsufficientBalanceException,
+                                                                   MinimumBalanceViolationException,
+                                                                   AccountException {
         // Verify PIN
         if (!validatePin(enteredPin)) {
             throw new InvalidPinException("Invalid PIN entered");
