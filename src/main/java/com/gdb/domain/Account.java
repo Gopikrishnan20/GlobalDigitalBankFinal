@@ -1,5 +1,6 @@
 package com.gdb.domain;
 
+import com.gdb.exceptions.*;
 
 public class Account {
     
@@ -47,23 +48,33 @@ public class Account {
     }
     
 
-    public boolean withdraw(double amount, String enteredPin) {
+    public boolean withdraw(double amount, String enteredPin) throws InvalidPinException, 
+                                                                   InactiveAccountException,
+                                                                   InvalidAmountException,
+                                                                   InsufficientBalanceException {
         // Verify PIN
         if (!validatePin(enteredPin)) {
-            return false;
+            throw new InvalidPinException("Invalid PIN entered");
         }
         
         // Check account status
         if (!status.equals("ACTIVE")) {
-            return false;
+            throw new InactiveAccountException("Account is not active");
         }
         
-        // Check amount validity and balance
-        if (amount > 0 && amount <= balance) {
-            balance -= amount;
-            return true;
+        // Check amount validity
+        if (amount <= 0) {
+            throw new InvalidAmountException("Withdrawal amount must be positive");
         }
-        return false;
+        
+        // Check balance
+        if (amount > balance) {
+            throw new InsufficientBalanceException("Insufficient funds in account");
+        }
+        
+        // Perform withdrawal
+        balance -= amount;
+        return true;
     }
     
     
