@@ -39,12 +39,19 @@ public class Account {
     }
     
     
-    public boolean deposit(double amount) {
-        if (amount > 0) {
-            balance += amount;
-            return true;
+    /**
+     * Deposit money into the account.
+     * 
+     * @param amount Amount to deposit (must be positive)
+     * @return true if deposit was successful
+     * @throws InvalidAmountException if amount is zero or negative
+     */
+    public boolean deposit(double amount) throws InvalidAmountException {
+        if (amount <= 0) {
+            throw new InvalidAmountException("Deposit amount must be positive");
         }
-        return false;
+        balance += amount;
+        return true;
     }
     
 
@@ -59,7 +66,11 @@ public class Account {
         
         // Check account status
         if (!status.equals("ACTIVE")) {
-            throw new InactiveAccountException("Account is not active");
+            if (status.equals("CLOSED")) {
+                throw new InactiveAccountException("Account is closed");
+            } else {
+                throw new InactiveAccountException("Account is not active");
+            }
         }
         
         // Check amount validity
