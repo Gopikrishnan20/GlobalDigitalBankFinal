@@ -5,40 +5,43 @@ import com.gdb.domain.Account;
 public class TestAccount {
     
     public static void main(String[] args) {
-        System.out.println("=== Activity 2: Test Account Suite ===");
+        System.out.println("=== Activity 3: Enhanced Account Test ===");
         
-        // Create a new account with initial balance of 5000.0
-        Account account = new Account("ACC1001", "Rajesh Sharma", 28, 5000.0, "SAVINGS", "ACTIVE");
-        
-        // Test 1: Check initial balance
-        boolean test1 = (account.getBalance() == 5000.0);
-        System.out.println("Test 1 (Initial Balance 5000.0): " + (test1 ? "[PASS]" : "[FAIL]"));
-        
-        // Test 2: Test valid deposit
-        boolean depositResult = account.deposit(2000.0);
-        boolean test2 = (depositResult == true && account.getBalance() == 7000.0);
-        System.out.println("Test 2 (Deposit 2000.0 -> Balance 7000.0): " + (test2 ? "[PASS]" : "[FAIL]"));
-        
-        // Test 3: Test negative deposit (edge case)
-        boolean negDepositResult = account.deposit(-500.0);
-        boolean test3 = (negDepositResult == false && account.getBalance() == 7000.0);
-        System.out.println("Test 3 (Negative Deposit -> Rejected): " + (test3 ? "[PASS]" : "[FAIL]"));
-        
-        // Test 4: Test valid withdrawal
-        boolean withdrawResult = account.withdraw(3000.0);
-        boolean test4 = (withdrawResult == true && account.getBalance() == 4000.0);
-        System.out.println("Test 4 (Withdraw 3000.0 -> Balance 4000.0): " + (test4 ? "[PASS]" : "[FAIL]"));
-        
-        // Test 5: Test withdrawal exceeding balance (edge case)
-        boolean exceedWithdrawResult = account.withdraw(10000.0);
-        boolean test5 = (exceedWithdrawResult == false && account.getBalance() == 4000.0);
-        System.out.println("Test 5 (Exceeding Withdrawal -> Rejected): " + (test5 ? "[PASS]" : "[FAIL]"));
-        
-        // Test 6: Test negative withdrawal (edge case)
-        boolean negWithdrawResult = account.withdraw(-100.0);
-        boolean test6 = (negWithdrawResult == false && account.getBalance() == 4000.0);
-        System.out.println("Test 6 (Negative Withdrawal -> Rejected): " + (test6 ? "[PASS]" : "[FAIL]"));
-        
-        System.out.println("All Account tests completed successfully!");
+        try {
+            // Create a new account with PIN
+            Account account = new Account("ACC1001", "Rajesh Sharma", 28, 5000.0, "SAVINGS", "ACTIVE", "1234");
+            
+            // Display initial status
+            System.out.println("Initial Balance: Rs " + account.getBalance() + " | Status: " + account.getStatus());
+            
+            // Test 1: Withdraw with correct PIN
+            boolean withdrawCorrect = account.withdraw(1000.0, "1234");
+            System.out.println("Withdraw with correct PIN: " + (withdrawCorrect ? "SUCCESS" : "FAILED") + " | Balance: Rs " + account.getBalance());
+            
+            // Test 2: Withdraw with wrong PIN
+            boolean withdrawWrong = account.withdraw(500.0, "5678");
+            System.out.println("Withdraw with wrong PIN: " + (withdrawWrong ? "SUCCESS" : "FAILED") + " | Balance: Rs " + account.getBalance());
+            
+            // Test 3: Suspend account and try to withdraw
+            System.out.println("Account Suspended.");
+            account.suspend();
+            boolean withdrawSuspended = account.withdraw(500.0, "1234");
+            System.out.println("Withdraw on SUSPENDED account: " + (withdrawSuspended ? "SUCCESS" : "FAILED") + " | Balance: Rs " + account.getBalance());
+            
+            // Test 4: Reactivate account
+            System.out.println("Account Re-Activated.");
+            account.activate();
+            
+            // Test 5: Change PIN
+            boolean pinChanged = account.changePin("1234", "5678");
+            System.out.println("PIN Changed " + (pinChanged ? "Successfully." : "Failed."));
+            
+            // Test 6: Withdraw with new PIN
+            boolean withdrawNewPin = account.withdraw(1000.0, "5678");
+            System.out.println("Withdraw with new PIN: " + (withdrawNewPin ? "SUCCESS" : "FAILED") + " | Balance: Rs " + account.getBalance());
+            
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 }
