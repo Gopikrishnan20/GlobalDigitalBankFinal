@@ -10,20 +10,7 @@ public class Account {
     private String accountType;
     private String status;
     private String pin;
-    
-    /**
-     * Constructor with PIN and validations.
-     * Validates age (>= 18), balance (>= 0), and PIN (exactly 4 digits).
-     * 
-     * @param accountNumber Unique account identifier
-     * @param name Account holder's name
-     * @param age Account holder's age (must be >= 18)
-     * @param balance Initial balance (must be >= 0)
-     * @param accountType Type of account
-     * @param status Account status
-     * @param pin 4-digit security PIN
-     * @throws IllegalArgumentException if age < 18, balance < 0, or PIN is invalid
-     */
+  
     public Account(String accountNumber, String name, int age, double balance, 
                    String accountType, String status, String pin) {
         // Validate age
@@ -59,13 +46,7 @@ public class Account {
         return false;
     }
     
-    /**
-     * Withdraw money with PIN verification and status check.
-     * 
-     * @param amount Amount to withdraw
-     * @param enteredPin PIN for authentication
-     * @return true if withdrawal successful, false otherwise
-     */
+
     public boolean withdraw(double amount, String enteredPin) {
         // Verify PIN
         if (!validatePin(enteredPin)) {
@@ -85,12 +66,7 @@ public class Account {
         return false;
     }
     
-    /**
-     * Validate if entered PIN matches the stored PIN.
-     * 
-     * @param enteredPin The PIN to validate
-     * @return true if PIN matches, false otherwise or if input is empty
-     */
+    
     public boolean validatePin(String enteredPin) {
         if (enteredPin == null || enteredPin.isEmpty()) {
             return false;
@@ -98,13 +74,6 @@ public class Account {
         return this.pin.equals(enteredPin);
     }
     
-    /**
-     * Change the account PIN after validating the old PIN.
-     * 
-     * @param oldPin The current PIN
-     * @param newPin The new PIN to set
-     * @return true if PIN changed successfully, false otherwise
-     */
     public boolean changePin(String oldPin, String newPin) {
         // Validate old PIN
         if (!validatePin(oldPin)) {
@@ -121,12 +90,6 @@ public class Account {
         return true;
     }
     
-    /**
-     * Helper method to validate PIN format (exactly 4 digits).
-     * 
-     * @param pin The PIN to validate
-     * @return true if PIN is valid, false otherwise
-     */
     private boolean isValidPin(String pin) {
         if (pin == null || pin.length() != 4) {
             return false;
@@ -134,31 +97,21 @@ public class Account {
         // Check if all characters are digits
         return pin.matches("\\d{4}");
     }
-    
-    /**
-     * Suspend the account.
-     */
+
     public void suspend() {
         this.status = "SUSPENDED";
     }
-    
-    /**
-     * Activate the account.
-     */
+
     public void activate() {
         this.status = "ACTIVE";
     }
     
-    /**
-     * Close the account.
-     */
+
     public void close() {
         this.status = "CLOSED";
     }
     
-    /**
-     * Display account information to the console.
-     */
+
     public void displayAccountInfo() {
         System.out.println("Account Number: " + accountNumber);
         System.out.println("Name: " + name);
