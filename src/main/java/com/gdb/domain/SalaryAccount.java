@@ -37,6 +37,10 @@ public class SalaryAccount extends Account {
         }
         setBalance(getBalance() - amount);
     }
+
+    public boolean hasSalaryCreditHistory() {
+        return inactiveMonths == 0;
+    }
     
     /**
      * Get the employer name.
