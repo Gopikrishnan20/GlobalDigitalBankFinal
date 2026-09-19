@@ -1,5 +1,8 @@
 package com.gdb.domain;
 
+import com.gdb.exceptions.AccountException;
+import com.gdb.exceptions.InsufficientBalanceException;
+
 /**
  * SalaryAccount class extends Account for salary-based banking operations.
  */
@@ -25,6 +28,14 @@ public class SalaryAccount extends Account {
         super(accountNumber, name, age, balance, "SALARY", status, pin);
         this.employerName = employerName;
         this.inactiveMonths = inactiveMonths;
+    }
+
+    @Override
+    public void processDebit(double amount) throws AccountException {
+        if (amount > getBalance()) {
+            throw new InsufficientBalanceException("Insufficient funds in account");
+        }
+        setBalance(getBalance() - amount);
     }
     
     /**

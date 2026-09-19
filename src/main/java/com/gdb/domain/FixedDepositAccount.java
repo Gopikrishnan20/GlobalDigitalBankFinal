@@ -43,22 +43,8 @@ public class FixedDepositAccount extends Account {
         return maturityAmount;
     }
     
-    /**
-     * Override withdraw method to prevent premature withdrawals.
-     * Fixed Deposit accounts do not allow withdrawals before maturity.
-     * 
-     * @param amount Amount to withdraw
-     * @param enteredPin PIN for authentication
-     * @return This method never returns successfully for FixedDepositAccount
-     * @throws AccountException indicating premature withdrawal not permitted
-     */
     @Override
-    public boolean withdraw(double amount, String enteredPin) throws InvalidPinException,
-                                                                     InactiveAccountException,
-                                                                     InvalidAmountException,
-                                                                     InsufficientBalanceException,
-                                                                     MinimumBalanceViolationException,
-                                                                     AccountException {
+    public void processDebit(double amount) throws AccountException {
         throw new AccountException("Premature withdrawal not permitted on Fixed Deposit account. Please wait until maturity.");
     }
     

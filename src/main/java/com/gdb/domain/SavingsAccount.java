@@ -1,10 +1,6 @@
 package com.gdb.domain;
 
 import com.gdb.exceptions.*;
-
-/**
- * SavingsAccount class extends Account with interest calculation and minimum balance requirements.
- */
 public class SavingsAccount extends Account {
     
     private double minBalance;
@@ -12,7 +8,6 @@ public class SavingsAccount extends Account {
     
     /**
      * Constructor for SavingsAccount.
-     * 
      * @param accountNumber Unique account identifier
      * @param name Account holder's name
      * @param age Account holder's age
@@ -41,32 +36,12 @@ public class SavingsAccount extends Account {
         }
     }
     
-    /**
-     * Override withdraw method to enforce minimum balance requirement.
-     * 
-     * @param amount Amount to withdraw
-     * @param enteredPin PIN for authentication
-     * @return true if withdrawal successful
-     * @throws InvalidPinException if PIN is incorrect
-     * @throws InactiveAccountException if account is not active
-     * @throws InvalidAmountException if amount is invalid
-     * @throws InsufficientBalanceException if insufficient balance
-     * @throws MinimumBalanceViolationException if withdrawal would breach minimum balance
-     */
     @Override
-    public boolean withdraw(double amount, String enteredPin) throws InvalidPinException,
-                                                                     InactiveAccountException,
-                                                                     InvalidAmountException,
-                                                                     InsufficientBalanceException,
-                                                                     MinimumBalanceViolationException,
-                                                                     AccountException {
-        // Check if withdrawal would violate minimum balance
-        if ((getBalance() - amount) < minBalance) {
+    public void processDebit(double amount) throws AccountException {
+        if (getBalance() - amount < minBalance) {
             throw new MinimumBalanceViolationException("Withdrawal would breach minimum balance of Rs " + minBalance);
         }
-        
-        // Call parent class withdraw method
-        return super.withdraw(amount, enteredPin);
+        super.processDebit(amount);
     }
     
     /**
