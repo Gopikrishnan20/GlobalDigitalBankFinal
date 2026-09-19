@@ -2,7 +2,7 @@ package com.gdb.domain;
 
 import com.gdb.exceptions.*;
 
-public abstract class AbstractAccount {
+public abstract class AbstractAccount implements IAccount {
     private String accountNumber;
     private String name;
     private int age;
@@ -31,6 +31,7 @@ public abstract class AbstractAccount {
         this.pin = pin;
     }
 
+    @Override
     public boolean deposit(double amount) throws InvalidAmountException {
         if (amount <= 0) {
             throw new InvalidAmountException("Deposit amount must be positive");
@@ -51,6 +52,7 @@ public abstract class AbstractAccount {
         return true;
     }
 
+    @Override
     public boolean withdraw(double amount, String enteredPin) throws InvalidPinException,
                                                                       InactiveAccountException,
                                                                       InvalidAmountException,
@@ -75,6 +77,7 @@ public abstract class AbstractAccount {
         return value != null && value.matches("\\d{4}");
     }
 
+    @Override
     public void displayAccountInfo() {
         System.out.println("Account Number: " + accountNumber);
         System.out.println("Name: " + name);
