@@ -39,7 +39,7 @@ public class SalaryAccount extends Account {
     }
 
     public boolean hasSalaryCreditHistory() {
-        return inactiveMonths == 0;
+        return AccountRulesEngine.hasSalaryCreditHistory(inactiveMonths);
     }
     
     /**
