@@ -13,12 +13,45 @@ public final class AccountFactory {
                                                 String status,
                                                 String pin,
                                                 Object... typeSpecificParameters) {
+        return createAccount(accountType, accountNumber, name, age, balance, status, pin,
+                null, typeSpecificParameters);
+    }
+
+    public static AbstractAccount createAccount(String accountType,
+                                                String accountNumber,
+                                                String name,
+                                                int age,
+                                                double balance,
+                                                String status,
+                                                String pin,
+                                                int tenureYears) {
+                            if ("SAVINGS".equalsIgnoreCase(accountType)) {
+                                return createAccount(accountType, accountNumber, name, age, balance, status, pin,
+                                    Integer.valueOf(tenureYears), new Object[0]);
+                            }
+        return createAccount(accountType, accountNumber, name, age, balance, status, pin,
+                                null, new Object[] { tenureYears });
+    }
+
+    private static AbstractAccount createAccount(String accountType,
+                                                 String accountNumber,
+                                                 String name,
+                                                 int age,
+                                                 double balance,
+                                                 String status,
+                                                 String pin,
+                                                 Integer tenureYears,
+                                                 Object[] typeSpecificParameters) {
         if (accountType == null) {
             throw new IllegalArgumentException("Account type cannot be null");
         }
 
         switch (accountType.toUpperCase()) {
             case "SAVINGS":
+                if (tenureYears != null) {
+                    return new SavingsAccount(accountNumber, name, age, balance, status, pin,
+                            tenureYears);
+                }
                 return new SavingsAccount(accountNumber, name, age, balance, status, pin,
                         parameter(typeSpecificParameters, 0, 0.0),
                         parameter(typeSpecificParameters, 1, 0.0));

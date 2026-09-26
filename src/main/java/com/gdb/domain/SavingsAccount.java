@@ -3,6 +3,7 @@ package com.gdb.domain;
 import com.gdb.exceptions.*;
 public class SavingsAccount extends Account {
     
+    private int tenureYears;
     private double minBalance;
     private double interestRate;
     
@@ -20,8 +21,27 @@ public class SavingsAccount extends Account {
     public SavingsAccount(String accountNumber, String name, int age, double balance, 
                          String status, String pin, double minBalance, double interestRate) {
         super(accountNumber, name, age, balance, "SAVINGS", status, pin);
+        this.tenureYears = 0;
         this.minBalance = minBalance;
         this.interestRate = interestRate;
+    }
+
+    /**
+     * Constructor for a savings account whose terms are based on customer tenure.
+     * @param accountNumber Unique account identifier
+     * @param name Account holder's name
+     * @param age Account holder's age
+     * @param balance Initial balance
+     * @param status Account status
+     * @param pin 4-digit security PIN
+     * @param tenureYears Customer tenure in years
+     */
+    public SavingsAccount(String accountNumber, String name, int age, double balance,
+                         String status, String pin, int tenureYears) {
+        super(accountNumber, name, age, balance, "SAVINGS", status, pin);
+        this.tenureYears = tenureYears;
+        this.minBalance = AccountRulesEngine.getSavingsMinBalance(tenureYears);
+        this.interestRate = AccountRulesEngine.getSavingsInterestRate(tenureYears);
     }
     
     /**
