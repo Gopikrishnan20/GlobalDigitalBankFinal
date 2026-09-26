@@ -38,7 +38,7 @@ public class SavingsAccount extends Account {
      */
     public SavingsAccount(String accountNumber, String name, int age, double balance,
                          String status, String pin, int tenureYears) {
-        super(accountNumber, name, age, balance, "SAVINGS", status, pin);
+        super(accountNumber, name, age, balance, "SAVINGS", status, pin, tenureYears);
         this.tenureYears = tenureYears;
         this.minBalance = AccountRulesEngine.getSavingsMinBalance(tenureYears);
         this.interestRate = AccountRulesEngine.getSavingsInterestRate(tenureYears);

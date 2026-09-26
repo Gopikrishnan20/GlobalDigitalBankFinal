@@ -18,6 +18,14 @@ public interface IAccount {
 
     String getStatus();
 
+    default boolean verifyPin(String pin) {
+        return false;
+    }
+
+    default boolean canWithdraw(double amount) {
+        return amount > 0 && amount <= getBalance();
+    }
+
     boolean deposit(double amount) throws InvalidAmountException;
 
     boolean withdraw(double amount, String pin) throws AccountException;

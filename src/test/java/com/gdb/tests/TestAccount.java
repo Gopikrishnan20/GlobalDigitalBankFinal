@@ -81,10 +81,9 @@ public class TestAccount {
         } catch (AccountException e) {
             suspendedWithdraw = false;
         }
-        
+
         boolean test5 = !suspendedWithdraw && account.getBalance() == 3500.0;
         System.out.println("Test 5 (Suspended Account Block): " + (test5 ? "[PASS]" : "[FAIL]"));
-        
         // Test 6: Reactivation and Successful Withdrawal
         account.activate();
         boolean reactivatedWithdraw = false;
@@ -94,10 +93,8 @@ public class TestAccount {
         } catch (AccountException e) {
             reactivatedWithdraw = false;
         }
-        
         boolean test6 = (reactivatedWithdraw && account.getBalance() == 3000.0);
         System.out.println("Test 6 (Reactivation & Success): " + (test6 ? "[PASS]" : "[FAIL]"));
-        
         System.out.println("All Enhanced Account tests passed!");
     }
 }

@@ -59,6 +59,23 @@ public final class AccountRulesPropertiesLoader {
         }
     }
 
+    public Double getAdditionalFeature(String featureKey, String tenureBucket) {
+        String propertyPrefix = switch (featureKey) {
+            case "dailyTransferLimit" -> "daily.transfer.limit";
+            default -> featureKey;
+        };
+        String value = properties.getProperty(propertyPrefix + "." + tenureBucket);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Double.valueOf(value.trim());
+        } catch (NumberFormatException exception) {
+            throw new IllegalStateException("Invalid decimal rule for '" + propertyPrefix
+                    + "." + tenureBucket + "': " + value, exception);
+        }
+    }
+
     private static String normalizeResourceName(String location) {
         String normalized = location.replace('\\', '/');
         int configIndex = normalized.indexOf("config/rules/");

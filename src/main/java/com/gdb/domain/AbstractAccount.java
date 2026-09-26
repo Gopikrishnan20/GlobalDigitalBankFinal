@@ -10,9 +10,15 @@ public abstract class AbstractAccount implements IAccount {
     private String accountType;
     private String status;
     private String pin;
+    private int tenureYears;
 
     protected AbstractAccount(String accountNumber, String name, int age, double balance,
                               String accountType, String status, String pin) {
+        this(accountNumber, name, age, balance, accountType, status, pin, 0);
+    }
+
+    protected AbstractAccount(String accountNumber, String name, int age, double balance,
+                              String accountType, String status, String pin, int tenureYears) {
         if (age < 18) {
             throw new IllegalArgumentException("Customer age must be at least 18 years old.");
         }
@@ -29,6 +35,7 @@ public abstract class AbstractAccount implements IAccount {
         this.accountType = accountType;
         this.status = status;
         this.pin = pin;
+        this.tenureYears = tenureYears;
     }
 
     @Override
@@ -42,6 +49,16 @@ public abstract class AbstractAccount implements IAccount {
 
     public boolean validatePin(String enteredPin) {
         return enteredPin != null && !enteredPin.isEmpty() && pin.equals(enteredPin);
+    }
+
+    @Override
+    public boolean verifyPin(String enteredPin) {
+        return validatePin(enteredPin);
+    }
+
+    @Override
+    public boolean canWithdraw(double amount) {
+        return amount > 0 && amount <= balance;
     }
 
     public boolean changePin(String oldPin, String newPin) {
@@ -95,10 +112,12 @@ public abstract class AbstractAccount implements IAccount {
     public double getBalance() { return balance; }
     public String getAccountType() { return accountType; }
     public String getStatus() { return status; }
+    public int getTenureYears() { return tenureYears; }
     public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
     public void setName(String name) { this.name = name; }
     public void setAge(int age) { this.age = age; }
     public void setBalance(double balance) { this.balance = balance; }
     public void setAccountType(String accountType) { this.accountType = accountType; }
     public void setStatus(String status) { this.status = status; }
+    public void setTenureYears(int tenureYears) { this.tenureYears = tenureYears; }
 }
