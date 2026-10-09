@@ -17,8 +17,11 @@ AccountUI ──► AccountService ──► AccountRepository ──► InMemor
                          config/persistence.properties
 ```
 
-The service depends on repository interfaces. The factory currently supports
-`memory`; `jdbc` and `file` are reserved for future activities.
+The service depends on repository interfaces. The factory supports `memory`;
+JDBC connection and schema setup are introduced in Activity 22, while JDBC
+repository implementations are added in later activities. Set
+`persistence.mode=memory` to run service activities until JDBC repositories are
+available.
 
 ## Files
 
@@ -38,13 +41,15 @@ The service depends on repository interfaces. The factory currently supports
 `src/main/resources/config/persistence.properties`:
 
 ```properties
-persistence.mode=memory
+persistence.mode=jdbc
+persistence.db.url=jdbc:sqlite:gdb.db
+persistence.db.driver=org.sqlite.JDBC
 ```
 
 When packaged or run from the project root, the factory checks the classpath
 resource and supported project-relative configuration locations. If no
-configuration file exists, it defaults to `memory`. Unsupported `jdbc` and
-`file` modes fail explicitly.
+configuration file exists, it defaults to `memory`. The in-memory tests create
+repositories directly and remain independent of the configured storage mode.
 
 ## How to Compile and Run
 
