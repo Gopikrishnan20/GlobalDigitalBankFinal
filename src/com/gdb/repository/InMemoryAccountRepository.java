@@ -12,39 +12,36 @@ public class InMemoryAccountRepository implements AccountRepository {
     private int nextAccountNumber = 1001;
 
     @Override
-    public synchronized void save(IAccount account) {
-        Objects.requireNonNull(account, "account must not be null");
-        int accountNumber = account.getAccountNumber();
-        accounts.put(accountNumber, account);
-        nextAccountNumber = Math.max(nextAccountNumber, accountNumber + 1);
-    }
-
-    @Override
-    public synchronized IAccount findById(int accountNumber) {
-        return accounts.get(accountNumber);
-    }
-
-    @Override
-    public synchronized List<IAccount> findAll() {
-        return new ArrayList<>(accounts.values());
-    }
-
-    @Override
-    public synchronized void update(IAccount account) {
-        Objects.requireNonNull(account, "account must not be null");
-        int accountNumber = account.getAccountNumber();
-        if (accounts.containsKey(accountNumber)) {
-            accounts.put(accountNumber, account);
+    public void save(IAccount account) {
+        if (account != null) {
+            accounts.put(account.getAccountNumber(), account);
         }
     }
 
     @Override
-    public synchronized void delete(int accountNumber) {
+    public IAccount findById(int accountNumber) {
+        return accounts.get(accountNumber);
+    }
+
+    @Override
+    public List<IAccount> findAll() {
+        return new ArrayList<>(accounts.values());
+    }
+
+    @Override
+    public void update(IAccount account) {
+        if (account != null && accounts.containsKey(account.getAccountNumber())) {
+            accounts.put(account.getAccountNumber(), account);
+        }
+    }
+
+    @Override
+    public void delete(int accountNumber) {
         accounts.remove(accountNumber);
     }
 
     @Override
-    public synchronized boolean exists(int accountNumber) {
+    public boolean exists(int accountNumber) {
         return accounts.containsKey(accountNumber);
     }
 

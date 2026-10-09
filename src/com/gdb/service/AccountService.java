@@ -18,13 +18,15 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final TransactionLogger logger;
+    private final TransferService transferService;
 
     public AccountService(AccountRepository accountRepository, 
                           TransactionRepository transactionRepository, 
                           TransactionLogger logger) {
-        this.accountRepository = Objects.requireNonNull(accountRepository, "accountRepository must not be null");
-        this.transactionRepository = Objects.requireNonNull(transactionRepository, "transactionRepository must not be null");
+        this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
         this.logger = logger;
+        this.transferService = new TransferService();
     }
 
     public AccountService(TransactionLogger logger) {
@@ -57,8 +59,10 @@ public class AccountService {
         }
         DepositCommand cmd = new DepositCommand(account, amount);
         cmd.execute();
-        accountRepository.update(account);
-        if (cmd.getTransaction() != null) {
+        if (accountRepository != null) {
+            accountRepository.update(account);
+        }
+        if (transactionRepository != null && cmd.getTransaction() != null) {
             transactionRepository.save(cmd.getTransaction());
         }
         if (logger != null) {
@@ -74,8 +78,10 @@ public class AccountService {
         }
         WithdrawCommand cmd = new WithdrawCommand(account, amount, pin);
         cmd.execute();
-        accountRepository.update(account);
-        if (cmd.getTransaction() != null) {
+        if (accountRepository != null) {
+            accountRepository.update(account);
+        }
+        if (transactionRepository != null && cmd.getTransaction() != null) {
             transactionRepository.save(cmd.getTransaction());
         }
         if (logger != null) {
@@ -97,9 +103,11 @@ public class AccountService {
 
         TransferCommand cmd = new TransferCommand(fromAccount, toAccount, amount, pin);
         cmd.execute();
-        accountRepository.update(fromAccount);
-        accountRepository.update(toAccount);
-        if (cmd.getTransaction() != null) {
+        if (accountRepository != null) {
+            accountRepository.update(fromAccount);
+            accountRepository.update(toAccount);
+        }
+        if (transactionRepository != null && cmd.getTransaction() != null) {
             transactionRepository.save(cmd.getTransaction());
         }
         if (logger != null) {
@@ -117,7 +125,9 @@ public class AccountService {
             throw new InvalidPinException("Incorrect PIN");
         }
         account.closeAccount();
-        accountRepository.update(account);
+        if (accountRepository != null) {
+            accountRepository.update(account);
+        }
     }
 
     public List<TransactionCommand> getTransactionHistory() {
@@ -125,14 +135,14 @@ public class AccountService {
     }
 
     public List<Transaction> getTransactionRecords() {
-        return transactionRepository.findAll();
+        return transactionRepository != null ? transactionRepository.findAll() : Collections.emptyList();
     }
 
     public List<Transaction> getTransactionRecords(int accountNumber) {
-        return transactionRepository.findByAccount(accountNumber);
+        return transactionRepository != null ? transactionRepository.findByAccount(accountNumber) : Collections.emptyList();
     }
 
     public List<IAccount> getAllAccounts() {
-        return accountRepository.findAll();
+        return accountRepository != null ? accountRepository.findAll() : Collections.emptyList();
     }
 }

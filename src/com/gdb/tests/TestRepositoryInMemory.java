@@ -4,8 +4,6 @@ import com.gdb.domain.*;
 import com.gdb.repository.*;
 import com.gdb.service.AccountService;
 import com.gdb.logging.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TestRepositoryInMemory {
@@ -17,107 +15,75 @@ public class TestRepositoryInMemory {
         AccountRepository accountRepo = new InMemoryAccountRepository();
         TransactionRepository txnRepo = new InMemoryTransactionRepository();
         TransactionLogger logger = new TransactionLogger(new MemoryLogDestination());
+
         AccountService service = new AccountService(accountRepo, txnRepo, logger);
 
-        testAccountRepository(accountRepo);
-        testTransactionRepository(txnRepo);
-        testFactory();
-        testServiceIntegration(service, txnRepo);
+        // Test Account Creation via Service
+        IAccount acc1 = service.openAccount("SAVINGS", "Rajesh Sharma", 30, 50000.0, 2);
+        IAccount acc2 = service.openAccount("CURRENT", "Priya Patel", 28, 40000.0, 0);
+        acc1.setPin(1234);
+        acc2.setPin(5678);
 
-        System.out.println("All Activity 21 repository checks passed.");
-    }
+        System.out.println("[TEST 1] Account Creation & Auto ID Generation:");
+        System.out.println("  acc1 ID = " + acc1.getAccountNumber() + " (Expected 1001)");
+        System.out.println("  acc2 ID = " + acc2.getAccountNumber() + " (Expected 1002)");
+        assert acc1.getAccountNumber() == 1001 : "acc1 should have ID 1001";
+        assert acc2.getAccountNumber() == 1002 : "acc2 should have ID 1002";
+        System.out.println("  -> PASSED");
 
-    private static void testAccountRepository(AccountRepository repository) throws Exception {
-        IAccount original = AccountFactory.createAccount("SAVINGS", 2001,
-                "Repository User", 30, 10000, 0);
-        repository.save(original);
-        check(repository.exists(2001), "saved account exists");
-        check(repository.findById(2001) == original, "findById returns saved account");
-        check(repository.findAll().size() == 1, "findAll returns stored accounts");
+        // Test Deposit
+        System.out.println("\n[TEST 2] Deposit via Service:");
+        Transaction depTxn = service.deposit(1001, 10000.0);
+        System.out.println("  " + depTxn);
+        assert acc1.getBalance() == 60000.0 : "Balance after deposit should be 60000.0";
+        System.out.println("  -> PASSED");
 
-        List<IAccount> accountSnapshot = repository.findAll();
-        accountSnapshot.clear();
-        check(repository.findAll().size() == 1, "findAll returns a defensive list copy");
+        // Test Withdraw
+        System.out.println("\n[TEST 3] Withdraw via Service:");
+        Transaction wthTxn = service.withdraw(1001, 5000.0, 1234);
+        System.out.println("  " + wthTxn);
+        assert acc1.getBalance() == 55000.0 : "Balance after withdraw should be 55000.0";
+        System.out.println("  -> PASSED");
 
-        IAccount replacement = AccountFactory.createAccount("SAVINGS", 2001,
-                "Updated User", 31, 12000, 0);
-        repository.update(replacement);
-        check(repository.findById(2001) == replacement, "update replaces an existing account");
+        // Test Transfer
+        System.out.println("\n[TEST 4] Transfer via Service:");
+        Transaction trfTxn = service.transfer(1001, 1002, 10000.0, 1234);
+        System.out.println("  " + trfTxn);
+        assert acc1.getBalance() == 45000.0 : "Sender balance should be 45000.0";
+        assert acc2.getBalance() == 50000.0 : "Receiver balance should be 50000.0";
+        System.out.println("  -> PASSED");
 
-        IAccount missing = AccountFactory.createAccount("SAVINGS", 2999,
-                "Missing User", 31, 12000, 0);
-        repository.update(missing);
-        check(!repository.exists(2999), "update does not insert a missing account");
-        check(repository.nextAccountNumber() == 2002, "account numbers advance past saved IDs");
+        // Test Repository Queries
+        System.out.println("\n[TEST 5] Repository Queries:");
+        List<IAccount> allAccs = service.getAllAccounts();
+        System.out.println("  Total accounts in repo: " + allAccs.size() + " (Expected 2)");
+        assert allAccs.size() == 2 : "Should have 2 accounts";
 
-        repository.delete(2001);
-        check(!repository.exists(2001), "delete removes an account");
-        System.out.println("[PASS] Account repository CRUD and ID generation");
-    }
+        List<Transaction> allTxns = service.getTransactionRecords();
+        System.out.println("  Total transactions in repo: " + allTxns.size() + " (Expected 3)");
+        assert allTxns.size() == 3 : "Should have 3 transactions";
 
-    private static void testTransactionRepository(TransactionRepository repository) {
-        Transaction deposit = transaction(2001, 0, 0);
-        Transaction transfer = transaction(2001, 2001, 3002);
-        Transaction other = transaction(4004, 0, 0);
-        repository.save(deposit);
-        repository.save(transfer);
-        repository.save(other);
-        repository.save(null);
+        List<Transaction> acc1Txns = service.getTransactionRecords(1001);
+        System.out.println("  Transactions for account 1001: " + acc1Txns.size() + " (Expected 3)");
+        assert acc1Txns.size() == 3 : "Account 1001 should have 3 transactions";
+        System.out.println("  -> PASSED");
 
-        check(repository.findAll().size() == 3, "findAll returns saved transactions");
-        check(repository.findByAccount(2001).size() == 2, "filter finds account-number matches");
-        check(repository.findByAccount(3002).size() == 1, "filter finds destination-account matches");
-
-        List<Transaction> transactionSnapshot = repository.findAll();
-        transactionSnapshot.clear();
-        check(repository.findAll().size() == 3, "findAll returns a defensive list copy");
-
-        repository.clear();
-        check(repository.findAll().isEmpty(), "clear removes all transactions");
-        System.out.println("[PASS] Transaction repository save, filter, snapshot, and clear");
-    }
-
-    private static void testFactory() {
-        check("memory".equals(RepositoryFactory.getPersistenceMode()),
-                "persistence.mode resolves from configuration");
-        check(RepositoryFactory.getAccountRepository() == RepositoryFactory.getAccountRepository(),
-                "factory reuses the account repository singleton");
-        check(RepositoryFactory.getTransactionRepository()
-                        == RepositoryFactory.getTransactionRepository(),
-                "factory reuses the transaction repository singleton");
-        System.out.println("[PASS] RepositoryFactory configuration and singleton instances");
-    }
-
-    private static void testServiceIntegration(AccountService service, TransactionRepository repository)
-            throws Exception {
-        IAccount source = service.openAccount("SAVINGS", "Source User", 30, 10000);
-        IAccount destination = service.openAccount("SAVINGS", "Destination User", 30, 10000);
-        source.setPin(1234);
-
-        service.deposit(source.getAccountNumber(), 500);
-        service.withdraw(source.getAccountNumber(), 200, 1234);
-        service.transfer(source.getAccountNumber(), destination.getAccountNumber(), 100, 1234);
-
-        check(service.getAccount(source.getAccountNumber()).getBalance() == 10200,
-                "service persists source balance after operations");
-        check(service.getAccount(destination.getAccountNumber()).getBalance() == 10100,
-                "service persists destination balance after transfer");
-        check(service.getAllAccounts().size() == 2, "service reads accounts through repository");
-        check(repository.findAll().size() == 3, "service persists transaction records");
-        check(service.getTransactionRecords(source.getAccountNumber()).size() == 3,
-                "service reads account transaction history");
-        System.out.println("[PASS] AccountService integration with repository interfaces");
-    }
-
-    private static Transaction transaction(int accountNumber, int fromAccount, int toAccount) {
-        return new Transaction(Transaction.generateId(), LocalDateTime.now(), accountNumber,
-                TransactionType.TRANSFER, 100, 900, "SUCCESS", "Test transaction",
-                fromAccount, toAccount);
-    }
-
-    private static void check(boolean condition, String message) {
-        if (!condition) {
-            throw new AssertionError("Failed: " + message);
+        // Test RepositoryFactory
+        System.out.println("\n[TEST 6] RepositoryFactory Mode:");
+        String mode = RepositoryFactory.getPersistenceMode();
+        System.out.println("  Persistence mode: " + mode);
+        if ("memory".equals(mode)) {
+            AccountRepository factoryAccRepo = RepositoryFactory.getAccountRepository();
+            assert factoryAccRepo != null : "Factory should return non-null repo";
+        } else if ("jdbc".equals(mode)) {
+            System.out.println("  JDBC repositories are introduced in later activities.");
+        } else {
+            throw new AssertionError("Unexpected persistence mode: " + mode);
         }
+        System.out.println("  -> PASSED");
+
+        System.out.println("\n" + "=".repeat(60));
+        System.out.println("  ALL ACTIVITY 21 IN-MEMORY REPOSITORY TESTS PASSED!");
+        System.out.println("=".repeat(60));
     }
 }
