@@ -2,7 +2,6 @@ package com.gdb.logging;
 
 import com.gdb.command.TransactionCommand;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.List;
 
 public class FileLogDestination implements LogDestination {
@@ -17,7 +16,7 @@ public class FileLogDestination implements LogDestination {
         try {
             log.log(cmd);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new RuntimeException("Error writing to file log: " + e.getMessage(), e);
         }
     }
 
@@ -25,20 +24,14 @@ public class FileLogDestination implements LogDestination {
     public List<TransactionCommand> readAll() {
         try {
             return log.readAll();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException(e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error reading from file log: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void clear() {
-        try {
-            log.clear();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        log.clear();
     }
 
     @Override

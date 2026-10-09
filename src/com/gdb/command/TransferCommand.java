@@ -7,26 +7,26 @@ import com.gdb.service.TransferService;
 public class TransferCommand implements TransactionCommand {
     private static final long serialVersionUID = 1L;
 
-    private final IAccount from;
-    private final IAccount to;
-    private final double amount;
-    private final int pin;
+    private IAccount fromAccount;
+    private IAccount toAccount;
+    private double amount;
+    private int pin;
     private Transaction transaction;
 
     public TransferCommand(IAccount from, IAccount to, double amount, int pin) {
-        this.from = from;
-        this.to = to;
+        this.fromAccount = from;
+        this.toAccount = to;
         this.amount = amount;
         this.pin = pin;
     }
 
     @Override
     public void execute() throws Exception {
-        transaction = new TransferService().transferWithTransaction(from, to, amount, pin);
+        this.transaction = new TransferService().transferWithTransaction(fromAccount, toAccount, amount, pin);
     }
 
     @Override
     public Transaction getTransaction() {
-        return transaction;
+        return this.transaction;
     }
 }

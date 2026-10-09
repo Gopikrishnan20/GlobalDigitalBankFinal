@@ -10,21 +10,6 @@ public class Transaction implements Serializable {
     private static final long serialVersionUID = 1L;
     private static long counter = 0;
 
-    // ============================================================
-    // 📝 STEP 2: Declare Transaction Fields
-    //
-    // INSTRUCTIONS:
-    //   1. transactionId (String) - Unique identifier for the transaction
-    //   2. timestamp (LocalDateTime) - Timestamp when transaction occurred
-    //   3. accountNumber (int) - Account on which transaction was performed
-    //   4. type (TransactionType) - DEPOSIT, WITHDRAW, or TRANSFER
-    //   5. amount (double) - Monetary value of the transaction
-    //   6. balanceAfter (double) - Account balance after transaction execution
-    //   7. status (String) - "SUCCESS" or "FAILED"
-    //   8. description (String) - Human-readable summary
-    //   9. fromAccount (int) - Source account (0 if not a TRANSFER)
-    //   10. toAccount (int) - Destination account (0 if not a TRANSFER)
-    // ============================================================
     private String transactionId;
     private LocalDateTime timestamp;
     private int accountNumber;
@@ -39,18 +24,11 @@ public class Transaction implements Serializable {
     public Transaction() {
     }
 
-    // ============================================================
-    // 📝 STEP 3: Constructor With All Fields
-    //
-    // INSTRUCTIONS:
-    //   Initialize all instance variables from constructor parameters.
-    // ============================================================
-    // TODO: implement all-arguments constructor
     public Transaction(String transactionId, LocalDateTime timestamp, int accountNumber,
                        TransactionType type, double amount, double balanceAfter,
                        String status, String description, int fromAccount, int toAccount) {
         this.transactionId = transactionId;
-        this.timestamp = timestamp;
+        this.timestamp = timestamp != null ? timestamp : LocalDateTime.now();
         this.accountNumber = accountNumber;
         this.type = type;
         this.amount = amount;
@@ -61,12 +39,6 @@ public class Transaction implements Serializable {
         this.toAccount = toAccount;
     }
 
-    // ============================================================
-    // 📝 STEP 4: Getters and Setters
-    //
-    // INSTRUCTIONS:
-    //   Provide standard accessors and mutators for all fields.
-    // ============================================================
     public String getTransactionId() { return transactionId; }
     public void setTransactionId(String transactionId) { this.transactionId = transactionId; }
 
@@ -97,28 +69,13 @@ public class Transaction implements Serializable {
     public int getToAccount() { return toAccount; }
     public void setToAccount(int toAccount) { this.toAccount = toAccount; }
 
-    // ============================================================
-    // 📝 STEP 5: toString Display Format
-    //
-    // INSTRUCTIONS:
-    //   Format transaction into a readable summary string.
-    // ============================================================
-    // TODO: implement toString() method
     @Override
     public String toString() {
-        return "[" + transactionId + "] " + type + " | Rs. " + amount
-            + " | Balance After: Rs. " + balanceAfter + " | Status: " + status
-            + " | " + description;
+        return "[" + transactionId + "] " + type + " | Rs. " + amount +
+               " | Balance After: Rs. " + balanceAfter + " | Status: " + status +
+               " | " + description;
     }
 
-    // ============================================================
-    // 📝 STEP 6: Static Helper generateId()
-    //
-    // INSTRUCTIONS:
-    //   Generate a unique transaction identifier string:
-    //   "TXN-" + System.currentTimeMillis() + "-" + (++counter)
-    // ============================================================
-    // TODO: generate unique transaction ID
     public static synchronized String generateId() {
         return "TXN-" + System.currentTimeMillis() + "-" + (++counter);
     }

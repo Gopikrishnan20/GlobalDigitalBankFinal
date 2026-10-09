@@ -1,7 +1,8 @@
 package com.gdb.logging;
 
 import com.gdb.command.TransactionCommand;
-import java.util.List;
+import com.gdb.db.SimulatedDatabase;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DatabaseLogDestination implements LogDestination {
@@ -15,19 +16,24 @@ public class DatabaseLogDestination implements LogDestination {
 
     @Override
     public void write(TransactionCommand cmd) {
-        db.insert(TABLE, cmd);
+        if (db != null) {
+            db.insert(TABLE, cmd);
+        }
     }
 
     @Override
     public List<TransactionCommand> readAll() {
+        if (db == null) return Collections.emptyList();
         return db.selectAll(TABLE).stream()
-                .map(TransactionCommand.class::cast)
+                .map(o -> (TransactionCommand) o)
                 .collect(Collectors.toList());
     }
 
     @Override
     public void clear() {
-        db.deleteAll(TABLE);
+        if (db != null) {
+            db.deleteAll(TABLE);
+        }
     }
 
     @Override

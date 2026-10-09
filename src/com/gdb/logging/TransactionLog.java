@@ -1,61 +1,61 @@
 package com.gdb.logging;
 
 import com.gdb.command.TransactionCommand;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 public class TransactionLog {
-    private static final Path LOG_FILE = Path.of("data", "transactions.ser");
+    private static final String FILE_PATH = "data/transactions.ser";
 
-    public void log(TransactionCommand command) throws IOException {
-        Files.createDirectories(LOG_FILE.getParent());
-        boolean append = Files.exists(LOG_FILE);
-        try (ObjectOutputStream output = append
-                ? new AppendableObjectOutputStream(Files.newOutputStream(LOG_FILE, StandardOpenOption.APPEND))
-                : new ObjectOutputStream(Files.newOutputStream(LOG_FILE, StandardOpenOption.CREATE_NEW))) {
-            output.writeObject(command);
-            output.flush();
+    private static class AppendableObjectOutputStream extends ObjectOutputStream {
+        public AppendableObjectOutputStream(OutputStream out) throws IOException {
+            super(out);
+        }
+        @Override
+        protected void writeStreamHeader() throws IOException {
+            // do not write header when appending to an existing stream
         }
     }
 
-    public List<TransactionCommand> readAll() throws IOException, ClassNotFoundException {
-        List<TransactionCommand> commands = new ArrayList<>();
-        if (!Files.exists(LOG_FILE) || Files.size(LOG_FILE) == 0) {
-            return commands;
+    public synchronized void log(TransactionCommand cmd) throws IOException {
+        File file = new File(FILE_PATH);
+        if (file.getParentFile() != null && !file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
         }
+        boolean isNewOrEmpty = !file.exists() || file.length() == 0;
+        try (ObjectOutputStream out = isNewOrEmpty
+                ? new ObjectOutputStream(new FileOutputStream(file))
+                : new AppendableObjectOutputStream(new FileOutputStream(file, true))) {
+            out.writeObject(cmd);
+            out.flush();
+        }
+    }
 
-        try (ObjectInputStream input = new ObjectInputStream(Files.newInputStream(LOG_FILE))) {
+    public synchronized List<TransactionCommand> readAll() throws IOException, ClassNotFoundException {
+        List<TransactionCommand> list = new ArrayList<>();
+        File file = new File(FILE_PATH);
+        if (!file.exists() || file.length() == 0) {
+            return list;
+        }
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
             while (true) {
                 try {
-                    commands.add((TransactionCommand) input.readObject());
-                } catch (EOFException endOfFile) {
+                    Object obj = in.readObject();
+                    if (obj instanceof TransactionCommand) {
+                        list.add((TransactionCommand) obj);
+                    }
+                } catch (EOFException e) {
                     break;
                 }
             }
         }
-        return commands;
+        return list;
     }
 
-    public void clear() throws IOException {
-        Files.deleteIfExists(LOG_FILE);
-    }
-
-    private static class AppendableObjectOutputStream extends ObjectOutputStream {
-        private AppendableObjectOutputStream(OutputStream output) throws IOException {
-            super(output);
-        }
-
-        @Override
-        protected void writeStreamHeader() throws IOException {
-            reset();
+    public synchronized void clear() {
+        File file = new File(FILE_PATH);
+        if (file.exists()) {
+            file.delete();
         }
     }
 }
