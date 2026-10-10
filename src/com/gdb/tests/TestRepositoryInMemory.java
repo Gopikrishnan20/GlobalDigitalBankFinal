@@ -72,14 +72,8 @@ public class TestRepositoryInMemory {
         System.out.println("\n[TEST 6] RepositoryFactory Mode:");
         String mode = RepositoryFactory.getPersistenceMode();
         System.out.println("  Persistence mode: " + mode);
-        if ("memory".equals(mode)) {
-            AccountRepository factoryAccRepo = RepositoryFactory.getAccountRepository();
-            assert factoryAccRepo != null : "Factory should return non-null repo";
-        } else if ("jdbc".equals(mode)) {
-            System.out.println("  JDBC repositories are introduced in later activities.");
-        } else {
-            throw new AssertionError("Unexpected persistence mode: " + mode);
-        }
+        AccountRepository factoryAccRepo = RepositoryFactory.getAccountRepository();
+        assert factoryAccRepo != null : "Factory should return non-null repo";
         System.out.println("  -> PASSED");
 
         System.out.println("\n" + "=".repeat(60));

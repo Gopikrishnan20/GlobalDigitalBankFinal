@@ -3,7 +3,6 @@ package com.gdb.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Objects;
 
 /**
  * Direct JDBC Connection Provider using DriverManager.
@@ -11,14 +10,17 @@ import java.util.Objects;
 public class JdbcConnectionProvider implements ConnectionProvider {
 
     private final String url;
+    private final String driver;
 
     public JdbcConnectionProvider(String url, String driver) {
-        this.url = Objects.requireNonNull(url, "url must not be null");
-        Objects.requireNonNull(driver, "driver must not be null");
+        this.url = url;
+        this.driver = driver;
         try {
-            Class.forName(driver);
-        } catch (ClassNotFoundException exception) {
-            throw new IllegalStateException("JDBC driver class not found: " + driver, exception);
+            if (driver != null && !driver.isEmpty()) {
+                Class.forName(driver);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Failed to load JDBC driver: " + driver, e);
         }
     }
 
@@ -33,6 +35,7 @@ public class JdbcConnectionProvider implements ConnectionProvider {
 
     @Override
     public void shutdown() {
+        // Direct JDBC connection requires no pool shutdown
     }
 
     @Override

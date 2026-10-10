@@ -1,25 +1,28 @@
 package com.gdb.repository;
 
 import com.gdb.domain.Transaction;
+import com.gdb.domain.TransactionType;
+
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * In-memory implementation of TransactionRepository backed by a List.
- */
 public class InMemoryTransactionRepository implements TransactionRepository {
 
     private final List<Transaction> transactions = new ArrayList<>();
 
+    public InMemoryTransactionRepository() {
+    }
+
     @Override
-    public void save(Transaction transaction) {
+    public synchronized void save(Transaction transaction) {
         if (transaction != null) {
             transactions.add(transaction);
         }
     }
 
     @Override
-    public List<Transaction> findByAccount(int accountNumber) {
+    public synchronized List<Transaction> findByAccount(int accountNumber) {
         return transactions.stream()
                 .filter(t -> t.getAccountNumber() == accountNumber || 
                              t.getFromAccount() == accountNumber || 
@@ -28,12 +31,29 @@ public class InMemoryTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public List<Transaction> findAll() {
+    public synchronized List<Transaction> findAll() {
         return new ArrayList<>(transactions);
     }
 
     @Override
-    public void clear() {
+    public synchronized void clear() {
         transactions.clear();
+    }
+
+    @Override
+    public synchronized void transfer(int fromAccountNumber, int toAccountNumber, double amount) {
+        Transaction txn = new Transaction(
+                Transaction.generateId(),
+                LocalDateTime.now(),
+                fromAccountNumber,
+                TransactionType.TRANSFER,
+                amount,
+                0.0,
+                "SUCCESS",
+                "Transfer to Account #" + toAccountNumber,
+                fromAccountNumber,
+                toAccountNumber
+        );
+        save(txn);
     }
 }

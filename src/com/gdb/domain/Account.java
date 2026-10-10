@@ -109,6 +109,9 @@ public abstract class Account implements IAccount, java.io.Serializable {
     }
 
     @Override public int getAccountNumber() { return accountNumber; }
+    public int getAge() { return age; }
+    public Integer getPin() { return pin; }
+    public String getStatus() { return status; }
     @Override public String getAccountHolderName() { return accountHolderName; }
     @Override public double getBalance() { return balance; }
     @Override public String getOpeningDate() { return openingDate; }
