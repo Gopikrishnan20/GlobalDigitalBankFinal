@@ -61,6 +61,11 @@ public class RepositoryFactory {
                 accountRepositoryInstance = new InMemoryAccountRepository();
             } else if ("jdbc".equals(mode)) {
                 accountRepositoryInstance = new JdbcAccountRepository(getConnectionProvider());
+            } else if ("file".equals(mode)) {
+                Properties props = loadPersistenceProperties();
+                accountRepositoryInstance = new FileAccountRepository(
+                    props.getProperty("persistence.file.account.path", "data/accounts.csv"),
+                    backupEnabled(props), maxBackups(props));
             } else {
                 accountRepositoryInstance = new InMemoryAccountRepository();
             }
@@ -75,11 +80,25 @@ public class RepositoryFactory {
                 transactionRepositoryInstance = new InMemoryTransactionRepository();
             } else if ("jdbc".equals(mode)) {
                 transactionRepositoryInstance = new JdbcTransactionRepository(getConnectionProvider());
+            } else if ("file".equals(mode)) {
+                Properties props = loadPersistenceProperties();
+                transactionRepositoryInstance = new FileTransactionRepository(
+                    props.getProperty("persistence.file.transaction.path", "data/transactions.csv"),
+                    (FileAccountRepository) getAccountRepository(),
+                    backupEnabled(props), maxBackups(props));
             } else {
                 transactionRepositoryInstance = new InMemoryTransactionRepository();
             }
         }
         return transactionRepositoryInstance;
+    }
+
+    private static boolean backupEnabled(Properties props) {
+        return Boolean.parseBoolean(props.getProperty("persistence.file.backup.enabled", "true").trim());
+    }
+
+    private static int maxBackups(Properties props) {
+        return Integer.parseInt(props.getProperty("persistence.file.backup.max", "5").trim());
     }
 
     public static synchronized void reset() {

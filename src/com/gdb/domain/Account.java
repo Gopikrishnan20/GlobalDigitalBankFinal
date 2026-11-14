@@ -118,6 +118,17 @@ public abstract class Account implements IAccount, java.io.Serializable {
     @Override public int getTenureYears() { return tenureYears; }
     @Override public void setTenureYears(int tenureYears) { this.tenureYears = Math.max(0, tenureYears); }
 
+    /**
+     * Restores stored values when a repository rebuilds an account from a file or database.
+     * Skips business-rule checks, because the stored balance was already validated when it was written.
+     */
+    public void restoreState(double balance, String openingDate) {
+        this.balance = balance;
+        if (openingDate != null && !openingDate.isEmpty()) {
+            this.openingDate = openingDate;
+        }
+    }
+
     public double getDailyTransferLimit() {
         return AccountRulesEngine.getInstance().getDailyTransferLimit(getAccountType(), getTenureYears());
     }

@@ -37,3 +37,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
+### Runtime / test output ###
+test_*.db
+test_data/
+*.bak.*
+*.tmp
