@@ -4,6 +4,8 @@ import com.gdb.domain.IAccount;
 import com.gdb.domain.Transaction;
 import com.gdb.command.TransactionCommand;
 import com.gdb.logging.*;
+import com.gdb.repository.InMemoryAccountRepository;
+import com.gdb.repository.InMemoryTransactionRepository;
 import com.gdb.service.AccountService;
 import com.gdb.exceptions.AccountException;
 import com.gdb.exceptions.InvalidPinException;
@@ -18,7 +20,7 @@ public class TestAccountService {
         // 📝 STEP 12 — Set up the service
         LogDestination dest = new MemoryLogDestination();
         TransactionLogger logger = new TransactionLogger(dest);
-        AccountService service = new AccountService(logger);
+        AccountService service = new AccountService(new InMemoryAccountRepository(), new InMemoryTransactionRepository(), logger);
 
         // 📝 STEP 13 — Open two accounts
         IAccount john = service.openAccount("SAVINGS", "John Doe", 25, 15000);

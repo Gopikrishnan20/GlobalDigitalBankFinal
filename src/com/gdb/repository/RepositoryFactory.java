@@ -68,9 +68,7 @@ public class RepositoryFactory {
             if ("memory".equals(mode)) {
                 transactionRepositoryInstance = new InMemoryTransactionRepository();
             } else if ("jdbc".equals(mode)) {
-                getConnectionProvider();
-                // Placeholder for Activity 24 JdbcTransactionRepository
-                throw new UnsupportedOperationException("JdbcTransactionRepository will be implemented in Activity 24. Use memory mode or TestJdbcAccountRepository for Activity 23.");
+                transactionRepositoryInstance = new JdbcTransactionRepository(getConnectionProvider());
             } else {
                 transactionRepositoryInstance = new InMemoryTransactionRepository();
             }

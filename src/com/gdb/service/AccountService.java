@@ -116,6 +116,17 @@ public class AccountService {
         return cmd.getTransaction();
     }
 
+    public void setPin(int accountNumber, int pin) throws AccountException {
+        IAccount account = getAccount(accountNumber);
+        if (account == null) {
+            throw new AccountException("Account not found: " + accountNumber);
+        }
+        account.setPin(pin);
+        if (accountRepository != null) {
+            accountRepository.update(account);
+        }
+    }
+
     public void closeAccount(int accountNumber, int pin) throws AccountException {
         IAccount account = getAccount(accountNumber);
         if (account == null) {

@@ -65,7 +65,7 @@ public class AccountUI {
         System.out.println("SUCCESS: " + acc.getAccountInfo());
 
         int pin = readInt("Set 4-digit PIN: ");
-        acc.setPin(pin);
+        service.setPin(acc.getAccountNumber(), pin);
         System.out.println("PIN set successfully.");
     }
 

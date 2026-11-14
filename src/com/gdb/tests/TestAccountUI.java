@@ -2,6 +2,8 @@ package com.gdb.tests;
 
 import com.gdb.domain.IAccount;
 import com.gdb.logging.*;
+import com.gdb.repository.InMemoryAccountRepository;
+import com.gdb.repository.InMemoryTransactionRepository;
 import com.gdb.service.AccountService;
 
 public class TestAccountUI {
@@ -12,7 +14,7 @@ public class TestAccountUI {
 
         LogDestination dest = new MemoryLogDestination();
         TransactionLogger logger = new TransactionLogger(dest);
-        AccountService service = new AccountService(logger);
+        AccountService service = new AccountService(new InMemoryAccountRepository(), new InMemoryTransactionRepository(), logger);
 
         // Verify backing operations used by AccountUI
         IAccount acc = service.openAccount("SAVINGS", "Alice Cooper", 28, 20000);
