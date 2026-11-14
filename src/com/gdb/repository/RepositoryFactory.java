@@ -1,6 +1,7 @@
 package com.gdb.repository;
 
 import com.gdb.db.ConnectionProvider;
+import com.gdb.db.HikariConnectionProvider;
 import com.gdb.db.JdbcConnectionProvider;
 import com.gdb.db.SchemaInitializer;
 
@@ -40,9 +41,14 @@ public class RepositoryFactory {
     public static synchronized ConnectionProvider getConnectionProvider() {
         if (connectionProviderInstance == null) {
             Properties props = loadPersistenceProperties();
-            String url = props.getProperty("persistence.db.url", "jdbc:sqlite:gdb.db");
-            String driver = props.getProperty("persistence.db.driver", "org.sqlite.JDBC");
-            connectionProviderInstance = new JdbcConnectionProvider(url, driver);
+            boolean poolEnabled = Boolean.parseBoolean(props.getProperty("persistence.pool.enabled", "false").trim());
+            if (poolEnabled) {
+                connectionProviderInstance = new HikariConnectionProvider(props);
+            } else {
+                String url = props.getProperty("persistence.db.url", "jdbc:sqlite:gdb.db");
+                String driver = props.getProperty("persistence.db.driver", "org.sqlite.JDBC");
+                connectionProviderInstance = new JdbcConnectionProvider(url, driver);
+            }
             SchemaInitializer.initialize(connectionProviderInstance);
         }
         return connectionProviderInstance;
